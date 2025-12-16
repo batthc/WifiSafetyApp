@@ -1,45 +1,29 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useState } from "react";
+import { Text, View } from "react-native";
+import { ensureWifiPermissions } from "./src/permissions";
+import { getCurrentSecurity, WifiSecurityResult } from "./src/WifiSecurity";
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+export default function App() {
+  const [res, setRes] = useState<WifiSecurityResult | null>(null);
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+  useEffect(() => {
+    (async () => {
+      const ok = await ensureWifiPermissions();
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  );
-}
+      if (!ok) {
+        console.log("User denied location permission");
+      }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+      const r = await getCurrentSecurity();
+      console.log("Wi-Fi security:", r);
+      setRes(r);
+    })();
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
+    <View style={{ padding: 32 }}>
+      <Text style={{ fontSize: 18 }}>Wi-Fi Security</Text>
+      <Text>{res ? JSON.stringify(res, null, 2) : "Loading..."}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;

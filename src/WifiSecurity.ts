@@ -17,8 +17,8 @@ export type WifiSecurityResult = {
 const { WifiSecurityNative } = NativeModules;
 
 export async function getCurrentSecurity(): Promise<WifiSecurityResult> {
-    if (!WifiSecurityNative) {
-        return { platform: Platform.OS as any, securityType: "UNKNOWN" };
-    }
-    return WifiSecurityNative.getCurrentSecurity();
-};
+  if (!WifiSecurityNative) {
+    return { platform: Platform.OS as any, securityType: "UNKNOWN" };
+  }
+  return WifiSecurityNative.getCurrentSecurity();
+}

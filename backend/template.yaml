@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: NetGuardian FastAPI backend (API Gateway + Lambda + DynamoDB + Secrets Manager)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 15
+    MemorySize: 512
+
+Resources:
+  HmacSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: netguardian/hmac
+      Description: HMAC secret for privacy-safe Wi-Fi fingerprinting
+      GenerateSecretString:
+        PasswordLength: 48
+        ExcludePunctuation: true
+
+  ScansTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: device_id
+          AttributeType: S
+        - AttributeName: ts
+          AttributeType: N
+      KeySchema:
+        - AttributeName: device_id
+          KeyType: HASH
+        - AttributeName: ts
+          KeyType: RANGE
+
+  ReputationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: fingerprint
+          AttributeType: S
+      KeySchema:
+        - AttributeName: fingerprint
+          KeyType: HASH
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/src/
+      Handler: app.handler
+      Environment:
+        Variables:
+          SCANS_TABLE: !Ref ScansTable
+          REPUTATION_TABLE: !Ref ReputationTable
+          HMAC_SECRET_ID: !Ref HmacSecret
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScansTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ReputationTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref HmacSecret
+      Events:
+        HttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: API base URL
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"

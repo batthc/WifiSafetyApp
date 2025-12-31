@@ -3,7 +3,6 @@ set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: ./test_scan.sh <API_BASE_URL>"
-  echo "Example: ./test_scan.sh https://xxxx.execute-api.us-east-1.amazonaws.com"
   exit 1
 fi
 

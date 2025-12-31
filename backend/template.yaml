@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: NetGuardian FastAPI backend (API Gateway + Lambda + DynamoDB + Secrets Manager)
+Description: NetGuardian FastAPI backend (HTTP API + Lambda + DynamoDB + Secrets Manager)
 
 Globals:
   Function:
@@ -47,7 +47,7 @@ Resources:
   ApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: backend/src/
+      CodeUri: src/
       Handler: app.handler
       Environment:
         Variables:

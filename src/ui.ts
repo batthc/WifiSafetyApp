@@ -1,12 +1,17 @@
-import { SecurityType } from "./WifiSecurity";
+import type { SecurityType } from "./WifiSecurity";
 
 export function prettySecurity(s: SecurityType) {
   switch (s) {
-    case "OPEN": return "Open (no password)";
-    case "WEP": return "WEP (unsafe)";
-    case "WPA_PERSONAL": return "WPA / WPA2 / WPA3";
-    case "WPA_ENTERPRISE": return "WPA Enterprise";
-    default: return "Unknown";
+    case "OPEN":
+      return "Open (no password)";
+    case "WEP":
+      return "WEP (unsafe / obsolete)";
+    case "WPA_PERSONAL":
+      return "WPA/WPA2/WPA3 Personal";
+    case "WPA_ENTERPRISE":
+      return "WPA Enterprise";
+    default:
+      return "Unknown";
   }
 }
 
